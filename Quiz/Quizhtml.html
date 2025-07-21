@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>✨ HTML Numbered Quiz</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #f70d0d,rgb(10, 192, 238), orange,grey);
+      color: #fff;
+      text-align: center;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1 {
+      margin-top: 30px;
+      font-size: 2.7rem;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+      color: black;
+    }
+
+    .btns {
+      margin: 25px 0;
+    }
+
+    button {
+      padding: 12px 25px;
+      font-size: 1rem;
+      margin: 10px;
+      border-radius: 12px;
+      border: none;
+      background: rgba(255, 255, 255, 0.9);
+      color: #2a5298;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+
+    button:hover {
+      background: gold;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    .quiz-box {
+      max-width: 860px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    #timer {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      background: rgba(0,0,0,0.2);
+      padding: 8px 16px;
+      border-radius: 10px;
+      display: inline-block;
+      font-weight: bold;
+    }
+
+    .question {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .options {
+      text-align: left;
+      max-width: 650px;
+      margin: auto;
+    }
+
+    .options label {
+      display: block;
+      background: rgba(255,255,255,0.2);
+      padding: 14px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border-left: 5px solid transparent;
+    }
+
+    .options label:hover {
+      background: rgba(255,255,255,0.3);
+      border-left: 5px solid #fff;
+    }
+
+    .options input {
+      margin-right: 10px;
+    }
+
+    .nav-btns {
+      margin-top: 20px;
+    }
+
+    .nav-btns button {
+      background-color: #fff;
+      color: #2a5298;
+      margin: 6px;
+    }
+
+    .nav-btns button:hover {
+      background-color: gold;
+      color: #fff;
+    }
+
+    #result {
+      margin-top: 30px;
+      text-align: left;
+      font-size: 18px;
+      padding: 15px;
+    }
+
+    .correct, .wrong {
+      padding: 16px;
+      border-radius: 12px;
+      margin: 12px 0;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+
+    .correct {
+      background: rgba(0, 255, 0, 0.1);
+      border-left: 6px solid #00ff99;
+    }
+
+    .wrong {
+      background: rgba(255, 0, 0, 0.1);
+      border-left: 6px solid #ff4d4d;
+    }
+
+    canvas {
+      position: fixed;
+      pointer-events: none;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 999;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      .quiz-box {
+        padding: 20px;
+      }
+
+      button {
+        font-size: 0.95rem;
+        padding: 10px 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>🧮 HTML Numbered Quiz</h1>
+
+<div class="btns">
+  <button onclick="startQuiz('easy')">Start Easy (5m)</button>
+  <button onclick="startQuiz('hard')">Start Hard (10m)</button>
+  <button onclick="startQuiz('veryhard')">Start Very Hard (15m)</button>
+</div>
+
+<div class="quiz-box" id="quizBox">
+  <div id="timer">Time Left: 00:00</div>
+  <div class="question" id="question">Q=</div>
+  <div id="options" class="options"></div>
+  <div class="nav-btns">
+    <button onclick="prevQuestion()">⬅ Prev</button>
+    <button onclick="nextQuestion()">Next ➡</button>
+    <button onclick="submitQuiz()">✅ Submit</button>
+  </div>
+  <div id="result"></div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+const questionSets = {
+  easy: [
+    { q: "1. What does HTML stand for?", o: ["Hyper Text Markup Language", "Home Tool Markup Language", "Hyperlinks and Text Markup Language", "Hyper Tool Language"], a: 0 },
+    { q: "2. What tag makes text bold?", o: ["<b>", "<strong>", "<bold>", "<em>"], a: 0 },
+    { q: "3. What tag is used to insert a line break?", o: ["<lb>", "<br>", "<break>", "<line>"], a: 1 },
+    { q: "4. What tag is used to create a hyperlink?", o: ["<a>", "<link>", "<href>", "<url>"], a: 0 },
+    { q: "5. What tag creates the largest heading?", o: ["<h1>", "<h6>", "<header>", "<head>"], a: 0 }
+  ],
+  hard: [
+    { q: "1. Which tag defines a table row?", o: ["<tr>", "<td>", "<th>", "<row>"], a: 0 },
+    { q: "2. What attribute opens link in new tab?", o: ["target='_blank'", "newtab", "href='_blank'", "window='_new'"], a: 0 },
+    { q: "3. Which tag creates unordered list?", o: ["<ul>", "<ol>", "<list>", "<li>"], a: 0 },
+    { q: "4. Insert comment in HTML?", o: ["<!-- comment -->", "// comment", "# comment", "** comment **"], a: 0 },
+    { q: "5. Tag to embed image?", o: ["<img>", "<image>", "<src>", "<pic>"], a: 0 },
+    { q: "6. <title> tag function?", o: ["Sets the page title", "Adds heading", "Bold text", "Meta description"], a: 0 },
+    { q: "7. Tag for checkbox?", o: ["<input type='checkbox'>", "<checkbox>", "<check>", "<input check>"], a: 0 },
+    { q: "8. Define footer?", o: ["<footer>", "<foot>", "<bottom>", "<end>"], a: 0 },
+    { q: "9. <meta> tag provides?", o: ["Metadata", "Scripts", "Images", "Video info"], a: 0 },
+    { q: "10. Define video element?", o: ["<video>", "<vid>", "<player>", "<media>"], a: 0 }
+  ],
+  veryhard: [
+    { q: "1. Tag to define external app container?", o: ["<embed>", "<object>", "<iframe>", "<applet>"], a: 1 },
+    { q: "2. Attribute for inline CSS?", o: ["class", "style", "css", "font"], a: 1 },
+    { q: "3. Set default input value?", o: ["default", "placeholder", "value", "name"], a: 2 },
+    { q: "4. Tag for client-side image-map?", o: ["<map>", "<imgmap>", "<imagemap>", "<areamap>"], a: 0 },
+    { q: "5. Input type for multiple values?", o: ["multiple", "checkbox", "multi", "select"], a: 0 },
+    { q: "6. Tag to specify header section?", o: ["<header>", "<head>", "<h1>", "<section>"], a: 0 },
+    { q: "7. Tag for dropdown list?", o: ["<select>", "<dropdown>", "<list>", "<input type='dropdown'>"], a: 0 },
+    { q: "8. <fieldset> tag usage?", o: ["Groups form elements", "Creates a text area", "Defines metadata", "None"], a: 0 },
+    { q: "9. Attribute for form-data destination?", o: ["action", "href", "src", "submit"], a: 0 },
+    { q: "10. <noscript> tag purpose?", o: ["Content for users with no JS", "External script", "Script fallback", "None"], a: 0 },
+    { q: "11. Embed audio in HTML?", o: ["<audio>", "<sound>", "<voice>", "<mp3>"], a: 0 },
+    { q: "12. Tag for preformatted text?", o: ["<pre>", "<code>", "<tt>", "<text>"], a: 0 },
+    { q: "13. Insert background image?", o: ["<body background='bg.jpg'>", "<img src='bg.jpg'>", "<bg image='bg.jpg'>", "<background src='bg.jpg'>"], a: 0 },
+    { q: "14. Internal style sheet tag?", o: ["<style>", "<css>", "<script>", "<head>"], a: 0 },
+    { q: "15. Input type for slider?", o: ["range", "slider", "scroll", "input-range"], a: 0 }
+  ]
+};
+
+let currentQuestions = [], userAnswers = [], currentIndex = 0, timeLeft = 0, timer = null;
+
+function startQuiz(level) {
+  currentQuestions = questionSets[level];
+  userAnswers = Array(currentQuestions.length).fill(null);
+  currentIndex = 0;
+  timeLeft = level === 'easy' ? 5 * 60 : level === 'hard' ? 10 * 60 : 15 * 60;
+  document.getElementById('quizBox').style.display = 'block';
+  document.getElementById('result').innerText = '';
+  loadQuestion();
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timer);
+  timer = setInterval(() => {
+    const mins = Math.floor(timeLeft / 60);
+    const secs = timeLeft % 60;
+    document.getElementById('timer').innerText = `Time Left: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      submitQuiz();
+    }
+    timeLeft--;
+  }, 1000);
+}
+
+function loadQuestion() {
+  const q = currentQuestions[currentIndex];
+  document.getElementById("question").innerText = q.q;
+  let opts = '';
+  q.o.forEach((opt, i) => {
+    const checked = userAnswers[currentIndex] === i ? 'checked' : '';
+    opts += `<label><input type="radio" name="option" value="${i}" ${checked}> ${escapeHtml(opt)}</label>`;
+  });
+  document.getElementById("options").innerHTML = opts;
+}
+
+function escapeHtml(text) {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function prevQuestion() {
+  saveAnswer();
+  if (currentIndex > 0) {
+    currentIndex--;
+    loadQuestion();
+  }
+}
+
+function nextQuestion() {
+  saveAnswer();
+  if (currentIndex < currentQuestions.length - 1) {
+    currentIndex++;
+    loadQuestion();
+  }
+}
+
+function saveAnswer() {
+  const selected = document.querySelector('input[name="option"]:checked');
+  if (selected) {
+    userAnswers[currentIndex] = parseInt(selected.value);
+  }
+}
+
+function submitQuiz() {
+  saveAnswer();
+  clearInterval(timer);
+  let correct = 0;
+  let review = '';
+  currentQuestions.forEach((q, i) => {
+    const ua = userAnswers[i];
+    const isCorrect = ua === q.a;
+    if (isCorrect) correct++;
+    const className = isCorrect ? "correct" : "wrong";
+    const userAnswer = ua === null ? "No Answer" : escapeHtml(q.o[ua]);
+    const correctAnswer = escapeHtml(q.o[q.a]);
+    const questionText = escapeHtml(q.q);
+    review += `<div class="${className}">
+      <strong>${questionText}</strong><br>
+      Your Answer: ${userAnswer}<br>
+      Correct Answer: ${correctAnswer}</div>`;
+  });
+  const percent = Math.round((correct / currentQuestions.length) * 100);
+  document.getElementById('result').innerHTML =
+    `✅ Score: ${correct}/${currentQuestions.length} (${percent}%)<br><br>${review}`;
+  showConfetti();
+}
+
+function showConfetti() {
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const pieces = Array.from({ length: 100 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 6 + 4,
+    d: Math.random() * 50 + 10,
+    color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+    tilt: Math.random() * 10 - 10,
+    tiltAngleIncremental: Math.random() * 0.1 + 0.05,
+    tiltAngle: 0
+  }));
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      p.tiltAngle += p.tiltAngleIncremental;
+      p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
+      p.x += Math.sin(p.d);
+      p.tilt = Math.sin(p.tiltAngle - p.r) * 15;
+      ctx.beginPath();
+      ctx.lineWidth = p.r;
+      ctx.strokeStyle = p.color;
+      ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+      ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+      ctx.stroke();
+    });
+  }
+
+  function update() {
+    draw();
+    requestAnimationFrame(update);
+  }
+
+  update();
+}
+</script>
+
+</body>
+</html>

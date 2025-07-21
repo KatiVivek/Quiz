@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CSS Numbered Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #0707ec, #808080d2,  #0a0aec);
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    h1 { 
+      margin: 20px;
+      color: rgb(11, 233, 11);
+     }
+
+    .btns { margin: 20px; }
+
+    button {
+      background: #fff;
+      color: #203a43;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 5px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: lab(55.32% 86.68 -19.17);
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    .quiz-box {
+      max-width: 800px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: auto;
+      padding: 20px;
+      border-radius: 12px;
+      display: none;
+    }
+
+    #timer {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .question {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .options label {
+      display: block;
+      padding: 14px 18px;
+      margin: 12px auto;
+      text-align: left;
+      background: rgba(255, 255, 255, 0.1);
+      border-left: 6px solid transparent;
+      border-radius: 12px;
+      color: #ffffff;
+      transition: 0.3s ease;
+      max-width: 700px;
+      cursor: pointer;
+    }
+
+    .options label:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-left: 6px solid #07e912;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+
+    .nav-btns { margin-top: 15px; }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      white-space: pre-wrap;
+      text-align: left;
+    }
+
+    .correct {
+      background-color: rgba(0, 255, 0, 0.1);
+      border-left: 5px solid #00ff99;
+      padding: 10px;
+      margin: 10px 0;
+    }
+
+    .wrong {
+      background-color: rgba(255, 0, 0, 0.1);
+      border-left: 5px solid #ff4d4d;
+      padding: 10px;
+      margin: 10px 0;
+    }
+
+    canvas {
+      position: fixed;
+      pointer-events: none;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🎨 CSS Numbered Quiz</h1>
+
+<div class="btns">
+  <button onclick="startQuiz('easy')">Start Easy (5m)</button>
+  <button onclick="startQuiz('hard')">Start Hard (10m)</button>
+  <button onclick="startQuiz('veryhard')">Start Very Hard (15m)</button>
+</div>
+
+<div class="quiz-box" id="quizBox">
+  <div id="timer">Time Left: 00:00</div>
+  <div class="question" id="question">Q=</div>
+  <div id="options" class="options"></div>
+  <div class="nav-btns">
+    <button onclick="prevQuestion()">⬅ Prev</button>
+    <button onclick="nextQuestion()">Next ➡</button>
+    <button onclick="submitQuiz()">✅ Submit</button>
+  </div>
+  <div id="result"></div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<!-- JavaScript remains unchanged, not repeated here to save space -->
+<script>
+const questionSets = {
+  easy: [
+    { q: "1. What does CSS stand for?", o: ["Cascading Style Sheets", "Computer Style System", "Creative Style Syntax", "Color Style Script"], a: 0 },
+    { q: "2. Which property changes text color?", o: ["font-color", "text-color", "color", "style"], a: 2 },
+    { q: "3. How do you select an element with ID 'box'?", o: [".box", "#box", "box", "*box"], a: 1 },
+    { q: "4. What property sets background color?", o: ["color", "bgcolor", "background", "background-color"], a: 3 },
+    { q: "5. Which property sets the text size?", o: ["font-size", "text-size", "size", "font"], a: 0 }
+  ],
+  hard: [
+    { q: "1. Which property controls spacing between lines?", o: ["line-spacing", "line-height", "spacing", "text-spacing"], a: 1 },
+    { q: "2. What is the default position value?", o: ["static", "relative", "absolute", "fixed"], a: 0 },
+    { q: "3. Which symbol is used for class selectors?", o: ["#", ".", "*", "$"], a: 1 },
+    { q: "4. How to make text bold?", o: ["font-weight: bold;", "style: bold;", "text-bold: true;", "font: bold;"], a: 0 },
+    { q: "5. How to make a list horizontal?", o: ["display: inline;", "display: block;", "list-style: horizontal;", "float: left;"], a: 0 },
+    { q: "6. Which value makes element invisible but takes space?", o: ["visibility: hidden", "display: none", "opacity: 0", "none of these"], a: 0 },
+    { q: "7. Which property sets box shadow?", o: ["shadow", "box-shadow", "drop-shadow", "shadow-box"], a: 1 },
+    { q: "8. How to underline text?", o: ["text-decoration: underline;", "font-style: underline;", "text-style: underline;", "decoration: underline;"], a: 0 },
+    { q: "9. CSS unit for relative sizing?", o: ["px", "em", "pt", "%"], a: 1 },
+    { q: "10. What is z-index used for?", o: ["Layer order", "Zoom", "Shadow", "Margin"], a: 0 }
+  ],
+  veryhard: [
+    { q: "1. CSS Grid property to define columns?", o: ["grid-columns", "grid-template-columns", "column-grid", "columns"], a: 1 },
+    { q: "2. Flexbox aligns items on cross-axis with?", o: ["justify-content", "align-items", "align-content", "flex-align"], a: 1 },
+    { q: "3. How to center using flexbox?", o: ["align: center;", "flex: center;", "justify-content: center; align-items: center;", "margin: auto;"], a: 2 },
+    { q: "4. Media queries are used for?", o: ["Animations", "Responsive design", "Grids", "Fonts"], a: 1 },
+    { q: "5. Which property sets animation duration?", o: ["animation-time", "duration", "animation-duration", "transition-duration"], a: 2 },
+    { q: "6. What does 'vw' stand for?", o: ["View Width", "Variable Width", "Visible Width", "Viewport Width"], a: 3 },
+    { q: "7. Which pseudo-class selects hovered elements?", o: [":hover", "::hover", ":active", "::active"], a: 0 },
+    { q: "8. Which property makes rounded corners?", o: ["corner-radius", "border-radius", "radius", "round-border"], a: 1 },
+    { q: "9. What does opacity: 0.5 mean?", o: ["50% visible", "Invisible", "0 opacity", "None"], a: 0 },
+    { q: "10. Which keyword inherits value from parent?", o: ["default", "initial", "inherit", "extend"], a: 2 },
+    { q: "11. Which is not a display value?", o: ["block", "inline", "hide", "flex"], a: 2 },
+    { q: "12. How to add transition effect?", o: ["transition: all 0.3s;", "animate: 0.3s;", "effect: smooth;", "transform: transition;"], a: 0 },
+    { q: "13. Which tag links external CSS?", o: ["<link>", "<style>", "<script>", "<css>"], a: 0 },
+    { q: "14. Which property changes font?", o: ["font-family", "font-type", "text-font", "style-font"], a: 0 },
+    { q: "15. CSS preprocessor?", o: ["Sass", "XML", "LessCSS", "Both Sass and Less"], a: 3 }
+  ]
+};
+
+let currentQuestions = [], userAnswers = [], currentIndex = 0, timeLeft = 0, timer = null;
+
+function startQuiz(level) {
+  currentQuestions = questionSets[level];
+  userAnswers = Array(currentQuestions.length).fill(null);
+  currentIndex = 0;
+  timeLeft = level === 'easy' ? 5 * 60 : level === 'hard' ? 10 * 60 : 15 * 60;
+  document.getElementById('quizBox').style.display = 'block';
+  document.getElementById('result').innerText = '';
+  loadQuestion();
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timer);
+  timer = setInterval(() => {
+    const mins = Math.floor(timeLeft / 60);
+    const secs = timeLeft % 60;
+    document.getElementById('timer').innerText = `Time Left: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      submitQuiz();
+    }
+    timeLeft--;
+  }, 1000);
+}
+
+function loadQuestion() {
+  const q = currentQuestions[currentIndex];
+  document.getElementById("question").innerText = q.q;
+  let opts = '';
+  q.o.forEach((opt, i) => {
+    const checked = userAnswers[currentIndex] === i ? 'checked' : '';
+    opts += `<label><input type="radio" name="option" value="${i}" ${checked}> ${escapeHtml(opt)}</label>`;
+  });
+  document.getElementById("options").innerHTML = opts;
+}
+
+function escapeHtml(text) {
+  return text.replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;");
+}
+
+function prevQuestion() {
+  saveAnswer();
+  if (currentIndex > 0) {
+    currentIndex--;
+    loadQuestion();
+  }
+}
+
+function nextQuestion() {
+  saveAnswer();
+  if (currentIndex < currentQuestions.length - 1) {
+    currentIndex++;
+    loadQuestion();
+  }
+}
+
+function saveAnswer() {
+  const selected = document.querySelector('input[name="option"]:checked');
+  if (selected) {
+    userAnswers[currentIndex] = parseInt(selected.value);
+  }
+}
+
+function submitQuiz() {
+  saveAnswer();
+  clearInterval(timer);
+  let correct = 0;
+  let review = '';
+  currentQuestions.forEach((q, i) => {
+    const ua = userAnswers[i];
+    const isCorrect = ua === q.a;
+    if (isCorrect) correct++;
+    const className = isCorrect ? "correct" : "wrong";
+    const userAnswer = ua === null ? "No Answer" : escapeHtml(q.o[ua]);
+    const correctAnswer = escapeHtml(q.o[q.a]);
+    const questionText = escapeHtml(q.q);
+    review += `<div class="${className}">
+      <strong>${questionText}</strong><br>
+      Your Answer: ${userAnswer}<br>
+      Correct Answer: ${correctAnswer}</div>`;
+  });
+  const percent = Math.round((correct / currentQuestions.length) * 100);
+  document.getElementById('result').innerHTML =
+    `✅ Score: ${correct}/${currentQuestions.length} (${percent}%)<br><br>${review}`;
+  showConfetti();
+}
+
+function showConfetti() {
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const pieces = Array.from({ length: 100 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 6 + 4,
+    d: Math.random() * 50 + 10,
+    color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+    tilt: Math.random() * 10 - 10,
+    tiltAngleIncremental: Math.random() * 0.1 + 0.05,
+    tiltAngle: 0
+  }));
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      p.tiltAngle += p.tiltAngleIncremental;
+      p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
+      p.x += Math.sin(p.d);
+      p.tilt = Math.sin(p.tiltAngle - p.r) * 15;
+      ctx.beginPath();
+      ctx.lineWidth = p.r;
+      ctx.strokeStyle = p.color;
+      ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+      ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+      ctx.stroke();
+    });
+  }
+
+  function update() {
+    draw();
+    requestAnimationFrame(update);
+  }
+
+  update();
+}// ... same JS as your original with logic for quiz functionality and confetti
+</script>
+
+</body>
+</html>

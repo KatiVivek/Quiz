@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Node.js Enhanced Quiz</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #00aa00, hsl(139, 48%, 56%), hsl(103, 97%, 49%),hsl(115, 38%, 53%));
+      color: #f0f0f0;
+      margin: 0;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      margin: 30px 10px;
+      font-size: 2.5em;
+      color:oklab(52.808% 0.09239 -0.07388);
+    }
+
+    .btns {
+      margin: 20px;
+    }
+
+    button {
+      background: linear-gradient(to right, #00f2fe, #4facfe);
+      color: #000;
+      border: none;
+      padding: 14px 28px;
+      margin: 10px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(0, 255, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(to right, #ff6ec4, #7873f5);
+      color: white;
+      transform: scale(1.05);
+      box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4);
+    }
+
+    .quiz-box {
+      max-width: 800px;
+      margin: auto;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(12px);
+      display: none;
+    }
+
+    #timer {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #ffeb3b;
+    }
+
+    .question {
+      font-size: 22px;
+      margin-bottom: 20px;
+      color: #ffffff;
+    }
+
+    .options label {
+      display: block;
+      padding: 14px 18px;
+      margin: 12px auto;
+      text-align: left;
+      background: rgba(255, 255, 255, 0.1);
+      border-left: 6px solid transparent;
+      border-radius: 12px;
+      color: #ffffff;
+      transition: 0.3s ease;
+      max-width: 700px;
+      cursor: pointer;
+    }
+
+    .options label:hover {
+      background: rgba(0, 255, 255, 0.2);
+      border-left: 6px solid #00ffff;
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+    }
+
+    .nav-btns {
+      margin-top: 20px;
+    }
+
+    #result {
+      margin-top: 30px;
+      font-size: 18px;
+      color: #fff;
+      text-align: left;
+      white-space: pre-wrap;
+    }
+
+    .correct {
+      background-color: rgba(0, 255, 100, 0.2);
+      border-left: 6px solid #00ff80;
+      box-shadow: 0 0 10px rgba(0, 255, 128, 0.4);
+      padding: 14px;
+      margin: 10px auto;
+      border-radius: 10px;
+      max-width: 700px;
+    }
+
+    .wrong {
+      background-color: rgba(255, 64, 64, 0.15);
+      border-left: 6px solid #ff4d4d;
+      box-shadow: 0 0 10px rgba(255, 77, 77, 0.4);
+      padding: 14px;
+      margin: 10px auto;
+      border-radius: 10px;
+      max-width: 700px;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🌐 Node.js Numbered Quiz</h1>
+
+<div class="btns">
+  <button onclick="startQuiz('easy')">🟢 Easy (5m)</button>
+  <button onclick="startQuiz('hard')">🟠 Hard (10m)</button>
+  <button onclick="startQuiz('veryhard')">🔴 Very Hard (15m)</button>
+</div>
+
+<div class="quiz-box" id="quizBox">
+  <div id="timer">⏱️ Time Left: 00:00</div>
+  <div class="question" id="question">Q=</div>
+  <div id="options" class="options"></div>
+  <div class="nav-btns">
+    <button onclick="prevQuestion()">⬅ Prev</button>
+    <button onclick="nextQuestion()">Next ➡</button>
+    <button onclick="submitQuiz()">✅ Submit</button>
+  </div>
+  <div id="result"></div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+const questionSets = {
+  easy: [
+    { q: "1. What is Node.js?", o: ["JavaScript runtime", "Browser", "Library", "Framework"], a: 0 },
+    { q: "2. Which engine powers Node.js?", o: ["SpiderMonkey", "Java VM", "V8", "Chakra"], a: 2 },
+    { q: "3. Node.js is?", o: ["Single-threaded", "Multi-threaded", "Compiled", "Blocking"], a: 0 },
+    { q: "4. File extension for modules?", o: [".txt", ".node", ".js", ".json"], a: 2 },
+    { q: "5. Node.js uses?", o: ["Synchronous I/O", "Asynchronous I/O", "Blocking I/O", "None"], a: 1 }
+  ],
+  hard: [
+    { q: "1. How to import a module?", o: ["include()", "require()", "import()", "load()"], a: 1 },
+    { q: "2. Which method reads a file?", o: ["fs.open()", "fs.readFile()", "fs.write()", "fs.create()"], a: 1 },
+    { q: "3. Type of Event Loop?", o: ["Parallel", "Recursive", "Single-threaded", "Multi-threaded"], a: 2 },
+    { q: "4. Which keyword to export?", o: ["export", "return", "module.exports", "define"], a: 2 },
+    { q: "5. Default HTTP port?", o: ["3000", "80", "8080", "443"], a: 1 },
+    { q: "6. Error handling in Node.js?", o: ["try-catch", "error()", "trap()", "except()"], a: 0 },
+    { q: "7. npm stands for?", o: ["Node Process Manager", "Node Package Manager", "New Package Manager", "None"], a: 1 },
+    { q: "8. Express is a?", o: ["Database", "Middleware", "Web framework", "Module loader"], a: 2 },
+    { q: "9. Middleware is?", o: ["Function", "Object", "Array", "Class"], a: 0 },
+    { q: "10. Routing in Express?", o: ["fs", "http", "url", "express.Router()"], a: 3 }
+  ],
+  veryhard: [
+    { q: "1. Cluster module for?", o: ["Scaling", "Logging", "Sessions", "Security"], a: 0 },
+    { q: "2. What is a buffer?", o: ["File", "Memory chunk", "Database", "Port"], a: 1 },
+    { q: "3. process.env stores?", o: ["Functions", "Environment vars", "Memory", "Routes"], a: 1 },
+    { q: "4. Async/await introduced in?", o: ["ES5", "ES6", "ES7", "ES8"], a: 3 },
+    { q: "5. `res.send()` sends?", o: ["HTML", "Data to client", "Error", "Redirect"], a: 1 },
+    { q: "6. Handle promises using?", o: ["catch()", "then()", "both", "finally()"], a: 2 },
+    { q: "7. Streams do?", o: ["Blocking data", "Continuous data", "Buffering", "Routing"], a: 1 },
+    { q: "8. `__dirname` gives?", o: ["Filename", "Directory path", "URL", "Env var"], a: 1 },
+    { q: "9. Callback is?", o: ["Return", "Export", "Function as arg", "Middleware"], a: 2 },
+    { q: "10. CORS is?", o: ["Security", "Routing", "Buffering", "SSL"], a: 0 },
+    { q: "11. `fs.unlink()` does?", o: ["Read file", "Delete file", "Copy file", "Write file"], a: 1 },
+    { q: "12. Not an event?", o: ["'data'", "'end'", "'close'", "'while'"], a: 3 },
+    { q: "13. 404 means?", o: ["OK", "Not Found", "Error", "Redirect"], a: 1 },
+    { q: "14. `setInterval` is?", o: ["Sync", "Async", "Blocking", "Compiled"], a: 1 },
+    { q: "15. `require.cache` stores?", o: ["File data", "Module paths", "Cached modules", "Exports"], a: 2 }
+  ]
+};
+
+let currentQuestions = [], userAnswers = [], currentIndex = 0, timeLeft = 0, timer = null;
+
+function startQuiz(level) {
+  currentQuestions = questionSets[level];
+  userAnswers = Array(currentQuestions.length).fill(null);
+  currentIndex = 0;
+  timeLeft = level === 'easy' ? 5 * 60 : level === 'hard' ? 10 * 60 : 15 * 60;
+  document.getElementById('quizBox').style.display = 'block';
+  document.getElementById('result').innerHTML = '';
+  loadQuestion();
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timer);
+  timer = setInterval(() => {
+    const mins = Math.floor(timeLeft / 60);
+    const secs = timeLeft % 60;
+    document.getElementById('timer').innerText = `⏱️ Time Left: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      submitQuiz();
+    }
+    timeLeft--;
+  }, 1000);
+}
+
+function loadQuestion() {
+  const q = currentQuestions[currentIndex];
+  document.getElementById("question").innerText = q.q;
+  let opts = '';
+  q.o.forEach((opt, i) => {
+    const checked = userAnswers[currentIndex] === i ? 'checked' : '';
+    opts += `<label><input type="radio" name="option" value="${i}" ${checked}> ${opt}</label>`;
+  });
+  document.getElementById("options").innerHTML = opts;
+}
+
+function prevQuestion() {
+  saveAnswer();
+  if (currentIndex > 0) {
+    currentIndex--;
+    loadQuestion();
+  }
+}
+
+function nextQuestion() {
+  saveAnswer();
+  if (currentIndex < currentQuestions.length - 1) {
+    currentIndex++;
+    loadQuestion();
+  }
+}
+
+function saveAnswer() {
+  const selected = document.querySelector('input[name="option"]:checked');
+  if (selected) userAnswers[currentIndex] = parseInt(selected.value);
+}
+
+function submitQuiz() {
+  saveAnswer();
+  clearInterval(timer);
+  let correct = 0;
+  let review = '';
+  currentQuestions.forEach((q, i) => {
+    const ua = userAnswers[i];
+    const isCorrect = ua === q.a;
+    if (isCorrect) correct++;
+    const className = isCorrect ? "correct" : "wrong";
+    const userAnswer = ua === null ? "No Answer" : q.o[ua];
+    const correctAnswer = q.o[q.a];
+    review += `<div class="${className}"><strong>${q.q}</strong><br>Your Answer: ${userAnswer}<br>Correct Answer: ${correctAnswer}</div>`;
+  });
+  const percent = Math.round((correct / currentQuestions.length) * 100);
+  document.getElementById('result').innerHTML = `✅ Score: ${correct}/${currentQuestions.length} (${percent}%)<br><br>${review}`;
+  showConfetti();
+}
+
+function showConfetti() {
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const pieces = Array.from({ length: 100 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 6 + 4,
+    d: Math.random() * 50 + 10,
+    color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+    tilt: Math.random() * 10 - 10,
+    tiltAngleIncremental: Math.random() * 0.1 + 0.05,
+    tiltAngle: 0
+  }));
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      p.tiltAngle += p.tiltAngleIncremental;
+      p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
+      p.x += Math.sin(p.d);
+      p.tilt = Math.sin(p.tiltAngle - p.r) * 15;
+      ctx.beginPath();
+      ctx.lineWidth = p.r;
+      ctx.strokeStyle = p.color;
+      ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+      ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+      ctx.stroke();
+    });
+  }
+  function update() {
+    draw();
+    requestAnimationFrame(update);
+  }
+  update();
+}
+</script>
+</body>
+</html>

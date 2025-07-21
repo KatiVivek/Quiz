@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MongoDB Quiz - Enhanced Green</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, springgreen, forestgreen,#39ff14);
+      color: #e8fce8;
+      margin: 0;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      font-size: 3em;
+      margin: 30px 10px;
+      color:hsl(240, 87%, 41%);
+    }
+
+    @keyframes glowText {
+      from { text-shadow: 0 0 5px #00ff95; }
+      to { text-shadow: 0 0 20px #39ff14; }
+    }
+
+    .btns {
+      margin: 20px;
+    }
+
+    button {
+      background: linear-gradient(135deg, blue, Purple);
+      color: #003300;
+      border: none;
+      padding: 14px 28px;
+      margin: 10px;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 255, 150, 0.4);
+      transition: 0.3s ease-in-out;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg,#FF00FF, #00FF00);
+      color: #001a00;
+      transform: scale(1.07);
+      box-shadow: 0 10px 30px rgba(102, 255, 102, 0.6);
+    }
+
+    .quiz-box {
+      max-width: 800px;
+      margin: auto;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 15px 30px rgba(0, 255, 100, 0.1);
+      backdrop-filter: blur(10px);
+      display: none;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #timer {
+      font-size: 22px;
+      font-weight: bold;
+      color: #b2ff59;
+      margin-bottom: 20px;
+      animation: timerPulse 1.5s infinite alternate;
+    }
+
+    @keyframes timerPulse {
+      from { text-shadow: 0 0 6px #b2ff59; }
+      to { text-shadow: 0 0 16px #00ff95; }
+    }
+
+    .question {
+      font-size: 24px;
+      margin-bottom: 25px;
+      font-weight: bold;
+      color: #d2ffd2;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .options label {
+      background: rgba(0, 255, 128, 0.08);
+      color: #f0fff0;
+      border-left: 6px solid transparent;
+      border-radius: 10px;
+      padding: 12px 18px;
+      margin: 8px 0;
+      width: 100%;
+      max-width: 680px;
+      text-align: left;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .options input[type="radio"] {
+      margin-right: 14px;
+      transform: scale(1.2);
+      accent-color: #00ff95;
+    }
+
+    .options label:hover {
+      background: rgba(0, 255, 128, 0.18);
+      border-left: 6px solid #00ff95;
+      box-shadow: 0 0 12px rgba(0, 255, 128, 0.3);
+    }
+
+    .nav-btns {
+      margin-top: 20px;
+    }
+
+    #result {
+      margin-top: 30px;
+      font-size: 18px;
+      color: #eaffea;
+      text-align: left;
+      white-space: pre-wrap;
+    }
+
+    .correct {
+      background-color: rgba(0, 255, 100, 0.15);
+      border-left: 6px solid #00ff80;
+      padding: 14px;
+      margin: 12px auto;
+      border-radius: 10px;
+      max-width: 700px;
+    }
+
+    .wrong {
+      background-color: rgba(255, 64, 64, 0.12);
+      border-left: 6px solid #ff4d4d;
+      padding: 14px;
+      margin: 12px auto;
+      border-radius: 10px;
+      max-width: 700px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🍃 MongoDB Numbered Quiz</h1>
+
+<div class="btns">
+  <button onclick="startQuiz('easy')">🟢 Easy (5m)</button>
+  <button onclick="startQuiz('hard')">🟠 Hard (10m)</button>
+  <button onclick="startQuiz('veryhard')">🔴 Very Hard (15m)</button>
+</div>
+
+<div class="quiz-box" id="quizBox">
+  <div id="timer">⏱️ Time Left: 00:00</div>
+  <div class="question" id="question">Question appears here</div>
+  <div id="options" class="options"></div>
+  <div class="nav-btns">
+    <button onclick="prevQuestion()">⬅ Prev</button>
+    <button onclick="nextQuestion()">Next ➡</button>
+    <button onclick="submitQuiz()">✅ Submit</button>
+  </div>
+  <div id="result"></div>
+</div>
+
+<script>
+const questions = {
+  easy: [
+    { q: "1. What is MongoDB?", o: ["SQL DB", "NoSQL DB", "File System", "Cloud Storage"], a: 1 },
+    { q: "2. MongoDB stores data in?", o: ["Tables", "Documents", "Rows", "Graphs"], a: 1 },
+    { q: "3. Default port of MongoDB?", o: ["3306", "5432", "27017", "8080"], a: 2 },
+    { q: "4. MongoDB uses which format?", o: ["XML", "YAML", "JSON/BSON", "CSV"], a: 2 },
+    { q: "5. Command to list DBs?", o: ["show dbs", "list db", "dbs()", "print()"], a: 0 }
+  ],
+  hard: [
+    { q: "1. Connect to Mongo shell?", o: ["mongo", "mongod", "mongoDB", "connect()"], a: 0 },
+    { q: "2. Insert one doc?", o: ["insertOne()", "addDoc()", "create()", "insert()"], a: 0 },
+    { q: "3. Indexes improve?", o: ["Size", "Speed", "Security", "Backup"], a: 1 },
+    { q: "4. Find all docs?", o: ["findAll()", "find({})", "select *", "getAll()"], a: 1 },
+    { q: "5. Delete many docs?", o: ["delete()", "deleteMany()", "drop()", "removeAll()"], a: 1 },
+    { q: "6. Data model type?", o: ["Flat", "Strict", "Flexible", "Relational"], a: 2 },
+    { q: "7. MongoDB Compass is?", o: ["Server", "GUI Tool", "Driver", "CLI"], a: 1 },
+    { q: "8. `$set` is used for?", o: ["Insert", "Delete", "Update", "Drop"], a: 2 },
+    { q: "9. Replication provides?", o: ["Speed", "Compression", "Fault Tolerance", "Size"], a: 2 },
+    { q: "10. `$match` used in?", o: ["Sharding", "Aggregation", "Indexing", "Update"], a: 1 }
+  ],
+  veryhard: [
+    { q: "1. What is sharding?", o: ["Partitioning", "Sorting", "Indexing", "Compressing"], a: 0 },
+    { q: "2. Replica set members?", o: ["1", "2", "3+", "0"], a: 2 },
+    { q: "3. `$project` does?", o: ["Insert", "Filter", "Shape output", "Join"], a: 2 },
+    { q: "4. `$group` does?", o: ["Group docs", "Split docs", "Join docs", "Filter docs"], a: 0 },
+    { q: "5. Change streams for?", o: ["Monitoring", "Export", "Backup", "Sharding"], a: 0 },
+    { q: "6. BSON vs JSON?", o: ["Same", "Binary JSON", "XML", "CSV"], a: 1 },
+    { q: "7. Atlas is?", o: ["Cloud DB", "Tool", "Backup", "Framework"], a: 0 },
+    { q: "8. GridFS stores?", o: ["Tables", "Blobs", "Large files", "JSON only"], a: 2 },
+    { q: "9. `$lookup` is like?", o: ["Join", "Filter", "Sort", "Skip"], a: 0 },
+    { q: "10. `$unwind` does?", o: ["Flatten arrays", "Join", "Delete", "Loop"], a: 0 },
+    { q: "11. Time-series data?", o: ["No", "Yes", "Limited", "Only for Atlas"], a: 1 },
+    { q: "12. Best backup tool?", o: ["Mongodump", "mongoSave", "dumpIt", "copydb"], a: 0 },
+    { q: "13. Transactions added in?", o: ["v1", "v3.6", "v4+", "v2"], a: 2 },
+    { q: "14. `$out` does?", o: ["Export", "Output to collection", "Log", "Compress"], a: 1 },
+    { q: "15. Max doc size?", o: ["16MB", "32MB", "64MB", "128MB"], a: 0 }
+  ]
+};
+
+let currentQuestions = [], userAnswers = [], currentIndex = 0, timeLeft = 0, timer = null;
+
+function startQuiz(level) {
+  currentQuestions = questions[level];
+  userAnswers = Array(currentQuestions.length).fill(null);
+  currentIndex = 0;
+  timeLeft = level === 'easy' ? 300 : level === 'hard' ? 600 : 900;
+  document.getElementById('quizBox').style.display = 'block';
+  document.getElementById('result').innerHTML = '';
+  loadQuestion();
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timer);
+  timer = setInterval(() => {
+    const mins = Math.floor(timeLeft / 60);
+    const secs = timeLeft % 60;
+    document.getElementById('timer').innerText = `⏱️ Time Left: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      submitQuiz();
+    }
+    timeLeft--;
+  }, 1000);
+}
+
+function loadQuestion() {
+  const q = currentQuestions[currentIndex];
+  document.getElementById("question").innerText = q.q;
+  let opts = '';
+  q.o.forEach((opt, i) => {
+    const checked = userAnswers[currentIndex] === i ? 'checked' : '';
+    opts += `<label><input type="radio" name="option" value="${i}" ${checked}> ${opt}</label>`;
+  });
+  document.getElementById("options").innerHTML = opts;
+}
+
+function prevQuestion() {
+  saveAnswer();
+  if (currentIndex > 0) {
+    currentIndex--;
+    loadQuestion();
+  }
+}
+
+function nextQuestion() {
+  saveAnswer();
+  if (currentIndex < currentQuestions.length - 1) {
+    currentIndex++;
+    loadQuestion();
+  }
+}
+
+function saveAnswer() {
+  const selected = document.querySelector('input[name="option"]:checked');
+  if (selected) userAnswers[currentIndex] = parseInt(selected.value);
+}
+
+function submitQuiz() {
+  saveAnswer();
+  clearInterval(timer);
+  let correct = 0;
+  let review = '';
+  currentQuestions.forEach((q, i) => {
+    const ua = userAnswers[i];
+    const isCorrect = ua === q.a;
+    if (isCorrect) correct++;
+    const className = isCorrect ? "correct" : "wrong";
+    const userAnswer = ua === null ? "No Answer" : q.o[ua];
+    const correctAnswer = q.o[q.a];
+    review += `<div class="${className}"><strong>${q.q}</strong><br>Your Answer: ${userAnswer}<br>Correct Answer: ${correctAnswer}</div>`;
+  });
+  const percent = Math.round((correct / currentQuestions.length) * 100);
+  document.getElementById('result').innerHTML = `✅ Score: ${correct}/${currentQuestions.length} (${percent}%)<br><br>${review}`;
+}
+</script>
+
+</body>
+</html>
