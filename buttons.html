@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Enhanced Tech Selector + Gmail Form</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+      background-size: 300% 300%;
+      animation: bgAnimate 15s ease infinite;
+      transition: background 1s ease;
+    }
+
+    @keyframes bgAnimate {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 50px 20px;
+    }
+
+    h1 {
+      font-size: 40px;
+      margin-bottom: 40px;
+      color: #222;
+      text-shadow: 1px 1px 3px #fff;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      margin-bottom: 30px;
+      text-align: center;
+      max-width: 700px;
+      width: 100%;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: scale(1.015);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .card h2 {
+      font-size: 26px;
+      margin-bottom: 20px;
+      color: #333;
+      border-bottom: 2px solid #444;
+      display: inline-block;
+      padding-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .button-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .btn {
+      position: relative;
+      padding: 14px 30px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 12px 25px rgba(255, 255, 255, 0.6);
+    }
+
+    .btn::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -75%;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: skewX(-20deg);
+      transition: left 0.6s ease;
+      z-index: 0;
+    }
+
+    .btn:hover::before {
+      left: 200%;
+    }
+
+    .btn span {
+      position: relative;
+      z-index: 1;
+    }
+
+    footer {
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      text-align: center;
+      padding: 25px 15px;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    footer h3 {
+      font-size: 20px;
+      color: #ffeb3b;
+      margin-bottom: 10px;
+    }
+
+    .footer-buttons {
+      margin: 12px 0;
+    }
+
+    .footer-buttons button {
+      margin: 5px 8px;
+      padding: 10px 20px;
+      background: #292929;
+      color: #fff;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .footer-buttons button:hover {
+      background: #444;
+    }
+
+    form input, form textarea {
+      padding: 12px;
+      border: 2px solid transparent;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      width: 90%;
+      font-size: 16px;
+      transition: border-color 0.3s ease;
+    }
+
+    form input:focus, form textarea:focus {
+      border-color: #764ba2;
+      outline: none;
+    }
+
+    form textarea {
+      resize: none;
+      height: 100px;
+    }
+
+    canvas.confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    #alertBox {
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10000;
+      padding: 15px 30px;
+      border-radius: 30px;
+      font-size: 18px;
+      font-weight: bold;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      color: white;
+      transition: all 0.5s ease;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 30px;
+      }
+
+      .btn {
+        width: 90%;
+        max-width: 260px;
+      }
+
+      .footer-buttons button {
+        width: 90%;
+        max-width: 300px;
+        margin: 6px auto;
+        display: block;
+      }
+    }
+
+
+   /************************h1 tag Anmation*****************************/
+
+  
+    @keyframes bgRotate {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .wrapper {
+      padding: 40px 60px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 0 40px rgba(255, 255, 255, 0.12);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .text-container {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .letter {
+      font-size: 4rem;
+      font-weight: 900;
+      background: linear-gradient(45deg, #ff0000, #ff8a00, #f5dd00, #00ffcc, #00c3ff, #d500f9, #ff005a);
+      background-size: 300%;
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(-200px);
+      animation:
+        drop 0.8s ease-out forwards,
+        float 3.5s ease-in-out infinite,
+        shine 5s linear infinite;
+    }
+
+    .letter:hover {
+      animation: pulse 0.6s ease-in-out infinite alternate, float 3.5s ease-in-out infinite, shine 5s linear infinite !important;
+      filter: brightness(1.2);
+    }
+
+    @keyframes drop {
+      0% { transform: translateY(-200px); opacity: 0; }
+      60% { transform: translateY(30px); opacity: 1; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    @keyframes shine {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes pulse {
+      from {
+        text-shadow: 0 0 10px rgba(255,255,255,0.4), 0 0 20px rgba(255,255,255,0.2);
+        transform: scale(1);
+      }
+      to {
+        text-shadow: 0 0 20px rgba(255,255,255,0.6), 0 0 30px rgba(255,255,255,0.4);
+        transform: scale(1.05);
+      }
+    }
+
+    .confetti {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: red;
+      border-radius: 50%;
+      opacity: 0.9;
+      animation: confettiFall 3.5s linear forwards;
+      z-index: 1;
+    }
+
+    @keyframes confettiFall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(800px) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .letter {
+        font-size: 2.5rem;
+      }
+
+      .wrapper {
+        padding: 25px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<main>
+  <div class="wrapper">
+    <div class="text-container" id="animatedText"></div>
+  </div>
+
+  <!-- Frontend -->
+  <div class="card">
+    <h2>Frontend</h2>
+    <div class="button-container">
+      <a href="Quiz/Quizhtml.html"><button class="btn" onclick="changeBackground(1)"><span>HTML</span></button></a>
+      <a href="Quiz/Quizcss.html"><button class="btn" onclick="changeBackground(2)"><span>CSS</span></button></a>
+      <a href="Quiz/Quizjavascript.html"><button class="btn" onclick="changeBackground(3)"><span>JavaScript</span></button></a>
+    </div>
+  </div>
+
+  <!-- Backend -->
+  <div class="card">
+    <h2>Backend</h2>
+    <div class="button-container">
+      <a href="Quiz/Quiznodejs.html"><button class="btn" onclick="changeBackground(4)"><span>Node.js</span></button></a>
+      <a href="Quiz/Quizexpressjs.html"><button class="btn" onclick="changeBackground(5)"><span>Express.js</span></button></a>
+    </div>
+  </div>
+
+  <!-- Database -->
+  <div class="card">
+    <h2>Database</h2>
+    <div class="button-container">
+      <a href="Quiz/Quizmongodb.html"><button class="btn" onclick="changeBackground(6)"><span>MongoDB</span></button></a>
+    </div>
+  </div>
+
+  <!-- Contact Form -->
+  <div class="card">
+    <h2>Send a Message</h2>
+    <form id="contactForm">
+      <input type="text" name="from_name" placeholder="Your Name" required />
+      <input type="email" name="from_email" placeholder="Your Email" required />
+      <textarea name="message" placeholder="Your Message" required></textarea>
+      <button type="submit" class="btn"><span id="sendText">Send Email</span></button>
+    </form>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer>
+  <h3>👤 Kati Vivek</h3>
+  <div class="footer-buttons">
+    <button onclick="callNow()">📞 Call: 9550700410</button>
+    <button onclick="sendMail()">✉️ Mail: kativivek7902@gmail.com</button>
+  </div>
+  <p>© 2025 Kati Vivek. All rights reserved.</p>
+</footer>
+
+<!-- Alert Box -->
+<div id="alertBox"></div>
+
+<!-- Script Area -->
+<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+<script>
+    // Animated Text
+    document.getElementById("animatedText").innerHTML = "";
+  const text = "Full Stack Quiz Test";
+    const container = document.getElementById("animatedText");
+
+    [...text].forEach((char, index) => {
+      const span = document.createElement("span");
+      span.textContent = char === " " ? "\u00A0" : char;
+      span.className = "letter";
+      span.style.animationDelay = `${index * 0.12}s`;
+      container.appendChild(span);
+    });
+
+    const showConfettiDelay = text.length * 0.12 + 1;
+    setTimeout(() => {
+      launchConfetti();
+    }, showConfettiDelay * 1000);
+
+    function launchConfetti() {
+      for (let i = 0; i < 150; i++) {
+        const confetti = document.createElement("div");
+        confetti.className = "confetti";
+        confetti.style.left = `${Math.random() * 100}%`;
+        confetti.style.top = `-${Math.random() * 20}px`;
+        confetti.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        confetti.style.animationDuration = `${2 + Math.random() * 2}s`;
+        confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 5000);
+      }
+    }
+
+    // Initialize EmailJS
+  emailjs.init("eoQAX7_XgAUnwMXc2"); // ← Replace with your actual public key
+
+  const alertBox = document.getElementById("alertBox");
+
+  function showAlert(message, type = "success") {
+    alertBox.innerText = message;
+    alertBox.style.background = type === "success" ? "#28a745" : "#dc3545";
+    alertBox.style.display = "block";
+    alertBox.style.opacity = "1";
+    alertBox.style.top = "20px";
+
+    setTimeout(() => {
+      alertBox.style.opacity = "0";
+      alertBox.style.top = "0px";
+      setTimeout(() => alertBox.style.display = "none", 500);
+    }, 4000);
+  }
+
+  document.getElementById("contactForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const sendBtn = document.getElementById("sendText");
+    sendBtn.textContent = "Sending...";
+
+    emailjs.sendForm("service_maamwh8", "template_uebdjx6", this)
+      .then(() => {
+        showAlert("✅ Email Sent Successfully!", "success");
+        sendBtn.textContent = "Send Email";
+        document.getElementById("contactForm").reset();
+      }, (error) => {
+        showAlert("❌ Failed to send email. Please try again.", "error");
+        sendBtn.textContent = "Send Email";
+        console.error(error);
+      });
+  });
+
+  const gradients = [
+    "linear-gradient(135deg, #ff9a9e, #fad0c4)", // HTML
+    "linear-gradient(135deg, #a18cd1, #fbc2eb)", // CSS
+    "linear-gradient(135deg, #fbc2eb, #a6c1ee)", // JS
+    "linear-gradient(135deg, #f6d365, #fda085)", // Node.js
+    "linear-gradient(135deg, #ffecd2, #fcb69f)", // Express.js
+    "linear-gradient(135deg, #89f7fe, #66a6ff)", // MongoDB
+    "linear-gradient(135deg, #84fab0, #8fd3f4)"  // MySQL
+  ];
+
+  let resetTimeout;
+
+  function changeBackground(id) {
+    document.body.style.background = gradients[id - 1];
+    document.body.style.animation = "none";
+    triggerConfetti();
+
+    clearTimeout(resetTimeout);
+    resetTimeout = setTimeout(() => {
+      document.body.style.background = "";
+      document.body.style.animation = "bgAnimate 15s ease infinite";
+    }, 10000);
+  }
+
+  function callNow() {
+    window.location.href = "tel:9550700410";
+  }
+
+  function sendMail() {
+    window.location.href = "mailto:kativivek7902@gmail.com";
+  }
+
+  function triggerConfetti() {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'confetti-canvas';
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    const pieces = [];
+
+    for (let i = 0; i < 100; i++) {
+      pieces.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * -100,
+        size: Math.random() * 8 + 4,
+        speed: Math.random() * 4 + 2,
+        color: `hsl(${Math.random() * 360}, 100%, 70%)`
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const p of pieces) {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        p.y += p.speed;
+        if (p.y > window.innerHeight) p.y = -10;
+      }
+      requestAnimationFrame(draw);
+    }
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    draw();
+
+    setTimeout(() => canvas.remove(), 2500);
+  }
+</script>
+
+</body>
+</html>

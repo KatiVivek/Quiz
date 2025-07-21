@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Eye Icon Password Toggle</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+      width: 90%;
+      max-width: 400px;
+      padding: 40px 25px;
+      text-align: center;
+      animation: fadeInUp 1s ease-in-out;
+      position: relative;
+    }
+
+    @keyframes fadeInUp {
+      from {opacity: 0; transform: translateY(50px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    h2 {
+      font-size: 30px;
+      color: #e73c7e;
+      margin-bottom: 25px;
+    }
+
+    input {
+      width: 90%;
+      padding: 12px;
+      margin: 12px 0;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      transition: border-color 0.3s ease;
+    }
+
+    input:focus {
+      border-color: #23d5ab;
+      outline: none;
+    }
+
+    .password-wrapper {
+      position: relative;
+      width: 90%;
+      margin: auto;
+    }
+
+    .password-wrapper input {
+      width: 100%;
+      padding-right: 40px;
+    }
+
+    .toggle-eye {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      cursor: pointer;
+      color: #888;
+    }
+
+    button {
+      padding: 12px 30px;
+      margin-top: 20px;
+      font-size: 16px;
+      color: #fff;
+      background: linear-gradient(45deg, #ff416c, #ff4b2b);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(255, 65, 108, 0.4);
+      transition: 0.4s ease;
+    }
+
+    button:hover {
+      transform: scale(1.08);
+      background: linear-gradient(45deg, #ff4b2b, #ff416c);
+    }
+
+    #continueBtn {
+      background: linear-gradient(45deg, #00b894, #00cec9);
+      display: none;
+    }
+
+    #continueBtn:hover {
+      background: linear-gradient(45deg, #00cec9, #00b894);
+    }
+
+    .message {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .success { color: #2ecc71; }
+    .error { color: #e74c3c; }
+
+    #congratsMessage {
+      display: none;
+      margin-top: 25px;
+      animation: bounceIn 0.8s ease-out;
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      60% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+
+    #congratsMessage h3 {
+      color: #6c5ce7;
+      background: linear-gradient(to right, #fd79a8, #a29bfe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 22px;
+    }
+
+    footer {
+      width: 100%;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.2);
+      color: #fff;
+      text-align: center;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      animation: fadeInFooter 2s ease-in-out;
+      font-size: 15px;
+    }
+
+    footer span {
+      color: #ffff66;
+    }
+
+    @keyframes fadeInFooter {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>✨ Animated Login</h2>
+    <input type="text" id="username" placeholder="Username">
+
+    <div class="password-wrapper">
+      <input type="password" id="password" placeholder="Password">
+      <span class="toggle-eye" onclick="togglePassword()" id="eyeIcon">👁️</span>
+    </div>
+
+    <button onclick="login()">Login</button>
+    <div id="message" class="message"></div>
+
+    <div id="congratsMessage">
+      <h3>🎉 Congratulations! Login Successful!</h3>
+    </div>
+    <a href="buttons.html"><button id="continueBtn" onclick="goNext()">Continue ➡</button></a>
+  </div>
+
+  <footer>
+    © 2025 <span>Kati Vivek</span> | 📞 <span>9550700410</span> | ✉️ <span>kativivek7902@gmail.com</span>
+  </footer>
+
+  <script>
+    function login() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const message = document.getElementById("message");
+      const congrats = document.getElementById("congratsMessage");
+      const continueBtn = document.getElementById("continueBtn");
+
+      if (username === "admin" && password === "admin") {
+        message.textContent = "✅ Login successful!";
+        message.className = "message success";
+
+        setTimeout(() => {
+          congrats.style.display = "block";
+          continueBtn.style.display = "inline-block";
+        }, 700);
+      } else {
+        message.textContent = "❌ Invalid username or password!";
+        message.className = "message error";
+        congrats.style.display = "none";
+        continueBtn.style.display = "none";
+      }
+    }
+
+    function togglePassword() {
+      const passwordInput = document.getElementById("password");
+      const eyeIcon = document.getElementById("eyeIcon");
+      const isPassword = passwordInput.type === "password";
+
+      passwordInput.type = isPassword ? "text" : "password";
+      eyeIcon.textContent = isPassword ? "🙈" : "👁️";
+    }
+
+    function goNext() {
+      alert("🎯 Redirecting to next page...");
+      // window.location.href = "nextpage.html";
+    }
+  </script>
+</body>
+</html>
